@@ -56,79 +56,60 @@ import java.util.Random;
 public class Main {
     public static void main(String[] args) throws IOException {
 
-        // 컴퓨터의 랜덤 수를 생성하기 위한
-        Random random = new Random();
-        long seed = System.currentTimeMillis();
-        int targetInteger =  random.nextInt(999);
-        String targetString = String.valueOf(targetInteger);
-        // 컴퓨터의 랜덤 수를 생성하기 위한
+        String targetString = generateTargetNumber();
 
-        boolean token = true;
-
-        while (token == true) {
-            token = iterator(refereeJudgement(targetString));
+        while (true) {
+            String inputValue = userInput();
+            if (printResult(refereeJudgement(targetString, inputValue)).equals("3개의 숫자를 모두 맞히셨습니다! 게임 종료")) {
+                System.out.println(printResult(refereeJudgement(targetString, inputValue)));
+                break;
+            }
+            System.out.println(printResult(refereeJudgement(targetString, inputValue)));
         }
 
     }
 
-    public static String refereeJudgement(String targetString) throws IOException {
+    public static String generateTargetNumber() {
+        Random random = new Random();
+        int targetInteger =  random.nextInt(100,999);
 
+        return String.valueOf(targetInteger);
+    }
+
+    public static String userInput() throws IOException {
         System.out.print("숫자를 입력해주세요 : ");
 
         // 사용자 입력
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int inputInteger = Integer.parseInt(br.readLine());
-        String inputString = String.valueOf(inputInteger);
 
-        int strikeCount = 0;
-        int ballCount = 0;
+        return br.readLine();
+    }
+
+    public static int[] refereeJudgement(String targetString, String inputValue) {
+
+        int[] result = new int[2];
 
         for (int i = 0; i < 3; i++) {
             //일치하면 스트라이크 카운트 + 1
-            if (targetString.charAt(i) == inputString.charAt(i)) {
-                strikeCount ++;
-            } 
-            //자리까지 일치하진 않지만 포한된다면 볼카운트 + 1
-            else if (targetString.contains(inputString)) {
-                ballCount ++;
-            }
+            if (targetString.charAt(i) == inputValue.charAt(i)) { result[0] += 1; }
 
+            //자리까지 일치하진 않지만 포함된다면 볼카운트 + 1
+            else if (targetString.contains(String.valueOf(inputValue.charAt(i)))) { result[1] += 1; }
         }
-
-        // 3개 다 맞았을 경우
-        if (strikeCount >= 3) {
-            return "3개의 숫자를 모두 맞히셨습니다! 게임 종료";
-        }
-
-        // 스트라이크, 볼 모두 포함된 경우
-        if (strikeCount > 0 && ballCount > 0) {
-            System.out.println(" 스트라이크 " + ballCount + " 볼");
-            return strikeCount + " 스트라이크 " + ballCount + " 볼";
-        }
-
-        // 스트라이크만 포함된 경우
-        if (strikeCount > 0 && ballCount == 0) {
-            System.out.println(strikeCount + " 스트라이크");
-            return strikeCount + " 스트라이크";
-        }
-
-        // 볼만 포함된 경우
-        if (ballCount > 0 && strikeCount == 0) {
-            System.out.println(ballCount + " 볼");
-            return ballCount + " 볼";
-        }
-
-        // 위 4가지의 조건문에 부합되지 않으면 아무것도 맞춘게 없는것
-        System.out.println("낫싱");
-        return "낫싱";
+        return result;
     }
 
-    public static boolean iterator(String message) {
-        if (message.equals("3개의 숫자를 모두 맞히셨습니다! 게임 종료")) {
-            System.out.println(message);
-            return false;
-        }
 
-        return true;
+    public static String printResult(int[] array) {
+
+        if (array[0] >= 3) { return "3개의 숫자를 모두 맞히셨습니다! 게임 종료"; }
+
+        if (array[0] > 0 && array[1] > 0) { return array[0] + " 스트라이크 " + array[1] + " 볼"; }
+
+        if (array[0] > 0 && array[1] == 0) { return array[0] + " 스트라이크"; }
+
+        if (array[1] > 0 && array[0] == 0) { return array[1] + " 볼"; }
+
+        return "낫싱";
     }
 }
